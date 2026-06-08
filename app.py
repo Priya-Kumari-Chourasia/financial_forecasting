@@ -61,6 +61,16 @@ PLOTLY_LAYOUT = dict(
     margin=dict(l=10, r=10, t=40, b=10),
     hovermode="x unified"
 )
+# ── Function to safely inject custom yaxis/xaxis settings ──
+def get_layout(title="", custom_yaxis=None):
+    """Safely merges configuration dictionaries to prevent multiple-value errors."""
+    layout = PLOTLY_LAYOUT.copy()
+    if title:
+        layout["title"] = title
+    if custom_yaxis:
+        # Merge specific key customisations down into the structural layout template
+        layout["yaxis"] = {**layout["yaxis"], **custom_yaxis}
+    return layout
 
 # ── Data ──
 @st.cache_data(ttl=300)
@@ -264,9 +274,13 @@ with tab1:
                                          name='RSI 14', line=dict(color='#a78bfa', width=1.5)))
                 fr.add_hline(y=70, line_dash="dot", line_color="#ff6b6b", line_width=1)
                 fr.add_hline(y=30, line_dash="dot", line_color="#6bffb8", line_width=1)
-                fr.update_layout(**PLOTLY_LAYOUT,
-                    title=dict(text="RSI 14", font=dict(size=12, color='#888')),
-                    height=200, yaxis=dict(range=[0,100], **PLOTLY_LAYOUT['yaxis']))
+                fr.update_layout(
+                        **get_layout(
+                            custom_yaxis={"range": [0, 100]}
+                        ),
+                        title=dict(text="RSI 14", font=dict(size=12, color='#888')),
+                        height=200
+                    )
                 st.plotly_chart(fr, width='stretch')
             with cr:
                 fm = go.Figure()
