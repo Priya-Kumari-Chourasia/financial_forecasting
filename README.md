@@ -128,6 +128,14 @@ The system compares multiple neural network architectures and identifies the bes
 
 ---
 
+## Screenshots
+
+![Dashboard](dashboard.png)
+
+![Forecast Results](result.png)
+
+---
+
 ## Future Enhancements
 
 * LSTM-based forecasting models
