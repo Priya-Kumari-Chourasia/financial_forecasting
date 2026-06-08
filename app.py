@@ -173,13 +173,15 @@ with st.sidebar:
     """, unsafe_allow_html=True)
 
     st.markdown("**TICKER**")
-    ticker = st.text_input("", value="NVDA", max_chars=6, label_visibility="collapsed").upper().strip()
+    ticker = st.text_input("Ticker symbol", value="NVDA", max_chars=10, label_visibility="hidden").upper().strip()
+    
+    st.markdown("<div class='mono' style='color:#333;font-size:10px;margin-top:-8px;margin-bottom:8px;'>US: AMZN, TSLA · India: HDFCBANK.NS</div>", unsafe_allow_html=True)
 
     st.markdown("**HISTORY PERIOD**")
-    period = st.selectbox("", ["1y","2y","5y","10y"], index=3, label_visibility="collapsed")
+    period = st.selectbox("", ["1y","2y","5y","10y"], index=3, label_visibility="hidden")
 
     st.markdown("**FORECAST HORIZON (days)**")
-    horizon = st.slider("", 1, 30, 1, label_visibility="collapsed")
+    horizon = st.slider("", 1, 30, 1, label_visibility="hidden")
 
     st.markdown("**MODELS TO TRAIN**")
     do_base = st.checkbox("Baseline MLP  (64→1)", value=True)
@@ -219,7 +221,10 @@ with tab1:
         with st.spinner("Fetching data..."):
             raw = download_stock(ticker, period)
         if raw.empty:
-            st.error(f"No data for {ticker}.")
+            st.error(f"No data for {ticker}."f"Check the ticker symbol — use Yahoo Finance format. "
+                f"For Indian stocks add `.NS` (e.g. `HDFCBANK.NS`, `RELIANCE.NS`). "
+                f"For US stocks use the standard symbol (e.g. `AMZN`, `GOOGL`, `TSLA`).")
+            
             st.stop()
         df = add_features(raw, use_advanced=use_adv)
 
@@ -249,7 +254,7 @@ with tab1:
         fig.update_layout(**PLOTLY_LAYOUT,
             title=dict(text=f"{ticker} · Price History", font=dict(size=13, color='#888')),
             height=320)
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width='stretch')
 
         if use_adv:
             cl, cr = st.columns(2)
@@ -262,7 +267,7 @@ with tab1:
                 fr.update_layout(**PLOTLY_LAYOUT,
                     title=dict(text="RSI 14", font=dict(size=12, color='#888')),
                     height=200, yaxis=dict(range=[0,100], **PLOTLY_LAYOUT['yaxis']))
-                st.plotly_chart(fr, use_container_width=True)
+                st.plotly_chart(fr, width='stretch')
             with cr:
                 fm = go.Figure()
                 fm.add_trace(go.Scatter(x=df['Date'], y=df['MACD'], mode='lines',
@@ -271,11 +276,11 @@ with tab1:
                                          name='Signal', line=dict(color='#ff6b6b', width=1, dash='dash')))
                 fm.update_layout(**PLOTLY_LAYOUT,
                     title=dict(text="MACD", font=dict(size=12, color='#888')), height=200)
-                st.plotly_chart(fm, use_container_width=True)
+                st.plotly_chart(fm, width='stretch')
 
         with st.expander("Feature matrix (last 10 rows)"):
             fcols = [c for c in df.columns if c not in ['Date','Open','High','Low','Volume','Adj Close']]
-            st.dataframe(df[fcols].tail(10).style.format("{:.4f}"), use_container_width=True)
+            st.dataframe(df[fcols].tail(10).style.format("{:.4f}"), width='stretch')
 
     except Exception as e:
         st.error(f"Error: {e}")
@@ -375,7 +380,7 @@ with tab2:
             fig_fc.update_layout(**PLOTLY_LAYOUT,
                 title=dict(text=f"Forecast vs Actual · Last {N} test days",
                            font=dict(size=13, color='#888')), height=380)
-            st.plotly_chart(fig_fc, use_container_width=True)
+            st.plotly_chart(fig_fc, width='stretch')
 
             fig_bar = go.Figure()
             ns = list(results.keys())
@@ -388,7 +393,7 @@ with tab2:
             fig_bar.update_layout(**PLOTLY_LAYOUT,
                 title=dict(text="RMSE Comparison", font=dict(size=12, color='#888')),
                 height=240, showlegend=False, bargap=0.4)
-            st.plotly_chart(fig_bar, use_container_width=True)
+            st.plotly_chart(fig_bar, width='stretch')
 
             # store in session
             st.session_state.update({
