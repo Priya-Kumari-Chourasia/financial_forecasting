@@ -90,7 +90,7 @@ The models are evaluated using:
 Clone the repository:
 
 ```bash
-git clone https://github.com/your-username/enhancing-neural-networks-for-financial-forecasting.git
+git clone https://github.com/Priya-Kumari-Chourasia/enhancing-neural-networks-for-financial-forecasting.git
 cd financial-forecasting
 ```
 
